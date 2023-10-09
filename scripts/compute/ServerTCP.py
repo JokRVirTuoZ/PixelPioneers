@@ -1,39 +1,48 @@
 import socket
 from threading import Thread
-
+from time import sleep
 from scripts._class.User import User
 
 
-def clientHandler(User):
-    User.connection()
-    msg = User.client.recv(1024)
+def clientHandler(user):
+    user.connection()
+    user.client.setblocking(False)
+    msg=b""
+    try:
+        msg = user.client.recv(1024)
+    except Exception as e:
+        print(e)
     if msg != b'':
         msg = msg.decode("UTF-8")
     else:
-        User.client.close()
-    if User.name == "":
+        #user.client.close()
+        pass
+    if user.name == "":
         User.name = msg
-    try:
-        while True:
-            msg = User.client.recv(1024)
-            if msg != b'':
-                msg = msg.decode("UTF-8")
+    while True:
+        msg = b""
+        try:
+            msg = user.client.recv(1024)
+        except Exception as e:
+            pass
+        if msg != b'' and type(msg) == bytes:
+            msg = msg.decode("UTF-8")
             # do some checks and if msg == someWeirdSignal: break:
-            print(f"{User.name}({User.ip},{User.port}) : {msg}")
-            # Maybe some code to compute the last digit of PI, play game or anything else can go here and when you are done.
-            #clientsocket.send(msg)
-            if msg == "close":
-                break
-    except Exception as e:
-        print(f"Une erreur est survenue avec {User.name} : {e}")
-    User.deconnection()
+            print(f"{user.name}({user.ip},{user.port}) : {msg}")
+        # Maybe some code to compute the last digit of PI, play game or anything else can go here and when you are done.
+        #clientsocket.send(msg)
+        if msg == "close":
+            break
+        sleep(1)
+    #print(f"Une erreur est survenue avec {user.name} : {e}")
+    user.deconnection()
     print(f"Le client : {User.name} s'est déconnecté")
-    User.client.close()
+    user.client.close()
 
 ADRESSE = ''
 PORT = 8888
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serveur.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+serveur.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 2)
 serveur.bind((ADRESSE, PORT))
 serveur.listen(10)
 tab = []
@@ -50,11 +59,20 @@ while True:
         tab.append(user)
     else:
         user = i
-        i.client = client
-        i.port = adresseClient[1]
+        user.client = client
+        user.port = adresseClient[1]
     print(f'Connexion de {adresseClient}, {retur}')
-    thread = Thread(target=clientHandler, args=user)
+    thread = Thread(target=clientHandler(user))
+    print("ok1")
+    try:
+        print("ok2")
+        for i in threads:
+            i.join()
+    except Exception as e:
+        print(e)
+    print("ok3")
     thread.start()
+    print("ok4")
     threads.append(thread)
     print(threads)
 
