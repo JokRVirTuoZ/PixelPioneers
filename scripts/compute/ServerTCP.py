@@ -33,9 +33,9 @@ def clientHandler(User):
 ADRESSE = ''
 PORT = 8888
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serveur.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 serveur.bind((ADRESSE, PORT))
 serveur.listen(10)
-
 tab = []
 threads = []
 while True:
@@ -53,9 +53,12 @@ while True:
         i.client = client
         i.port = adresseClient[1]
     print(f'Connexion de {adresseClient}, {retur}')
-    thread = Thread(target=clientHandler(user))
-    threads.append(thread)
+    thread = Thread(target=clientHandler, args=user)
     thread.start()
+    threads.append(thread)
+    print(threads)
+
+
 for i in threads:
     i.join()
 
