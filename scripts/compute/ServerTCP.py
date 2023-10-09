@@ -27,11 +27,11 @@ def clientHandler(User):
     except Exception as e:
         print(f"Une erreur est survenue avec {User.name} : {e}")
     User.deconnection()
-    print(f"Le client : {User.name} : s'est déconnecté")
+    print(f"Le client : {User.name} s'est déconnecté")
     User.client.close()
 
 ADRESSE = ''
-PORT = 9999
+PORT = 8888
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind((ADRESSE, PORT))
 serveur.listen(10)
@@ -49,7 +49,9 @@ while True:
         user = User(client, adresseClient, len(tab))
         tab.append(user)
     else:
-        user = tab[i]
+        user = i
+        i.client = client
+        i.port = adresseClient[1]
     print(f'Connexion de {adresseClient}, {retur}')
     thread = Thread(target=clientHandler(user))
     threads.append(thread)
