@@ -4,7 +4,7 @@ PORT = 4258
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind((ADRESSE, PORT))
-serveur.listen(1)
+serveur.listen(2)
 client, adresseClient = serveur.accept()
 print('Connexion de ', adresseClient)
 data = ""
