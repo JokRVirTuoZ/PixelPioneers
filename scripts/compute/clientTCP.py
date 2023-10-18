@@ -3,7 +3,7 @@ import time
 
 s = suck.socket(suck.AF_INET, suck.SOCK_STREAM)
 def ConnectToServer():
-    s.connect(("172.23.5.234", 4258))
+    s.connect(("127.0.0.1", 8888))
     time.sleep(1)
 
 def sendString(string):
