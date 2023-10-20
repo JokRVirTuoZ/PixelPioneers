@@ -24,9 +24,9 @@ def decodeMsg(user, string, mythreads):
                     flag = True
                     for y in range(len(text) - 2):
                         msg += text[2 + y] + " "
-                    i.socket.send(f"Message from {user.name} : {msg}".encode("UTF-8"))
+                    i.socket.send(f"[server] Message from {user.name} : {msg}".encode("UTF-8"))
             if not flag:
-                i.socket.send(f"Le contact {text[1]} n'as pas été trouvé".encode("UTF-8"))
+                i.socket.send(f"[server] Le contact {text[1]} n'as pas été trouvé".encode("UTF-8"))
         elif a == "i":  # inventory
             pass
         elif a == "m":  # move int int
@@ -46,7 +46,7 @@ def decodeMsg(user, string, mythreads):
         elif a == "sleep":  # endormir
             pass
         elif a == "help": # afficher command
-            user.socket.send(f"Voici les différentes command possible : \n "
+            user.socket.send(f"[server] Voici les différentes command possible : \n "
                           f" /w [pseudo] : permet de chuchoter au pseudo choisi \n"
                           f" /i : permet d'afficher son inventory \n"
                           f" /m [coordonnées X] [coordonées Y] : permet de se déplacer au coordonées données \n"
@@ -65,14 +65,14 @@ def decodeMsg(user, string, mythreads):
                 if i.name == text[1]:
                     print("ok4")
                     flag = True
-                    i.socket.send(f"{user.name} t'as tabasserjusquacequemortsensuive".encode("UTF-8"))
+                    i.socket.send(f"[server] {user.name} t'as tabasserjusquacequemortsensuive".encode("UTF-8"))
                     time.sleep(2)
                     i.closed()
             if not flag:
-                i.socket.send(f"Le contact {text[1]} n'as pas été trouvé".encode("UTF-8"))
+                i.socket.send(f"[server] Le contact {text[1]} n'as pas été trouvé".encode("UTF-8"))
 
         else :
-            user.socket.send(f"La command {text[0]} n'as pas été trouvé sad ;( ".encode("UTF-8"))
+            user.socket.send(f"[server] La command {text[0]} n'as pas été trouvé sad ;( ".encode("UTF-8"))
 
 
 
@@ -98,10 +98,13 @@ class myThread(Thread):
                     self.name = data
                     break
         while True:
-            data = self.socket.recv(2048)
-            data = data.decode("UTF-8")
-            print(self.name, ":", data)
-            decodeMsg(self, data, mythreads)
+            try:
+                data = self.socket.recv(2048)
+                data = data.decode("UTF-8")
+                print(self.name, ":", data)
+                decodeMsg(self, data, mythreads)
+            except OSError:
+                data = 'close'
             if data == 'close':
                 self.sleeped = True
                 while self.sleeped:
@@ -123,7 +126,7 @@ class myThread(Thread):
                             print(self.name, ":", data)
                             decodeMsg(self, data, mythreads)
     def closed(self):
-        self.socket.shutdown()
+        self.socket.shutdown(0)
         self.socket.close()
 
     def reopen(self):
@@ -133,7 +136,7 @@ class myThread(Thread):
 
 while True:
     s.listen(5)
-    print("Serveur: en attente de connexions des clients TCP ...")
+    print("[server] en attente de connexions des clients TCP ...")
     (con, (ip, port)) = s.accept()
     flag = False
     for i in mythreads:
@@ -143,8 +146,6 @@ while True:
             i.socket = con
             i.ip = ip
             i.port = port
-            i.closed()
-            i.reopen()
     if not flag:
         con.send(b"Veuillez rentrer votre pseudo")
         mythread = myThread(con, ip, port)
