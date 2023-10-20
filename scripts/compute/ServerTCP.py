@@ -15,7 +15,7 @@ def decodeMsg(user, string, mythreads):
     if string[0] == "/":
         text = string.split()
         a = text[0][1:]
-        elif a == "w":  # chuchoter
+        if a == "w":  # chuchoter
             flag = False
             for i in mythreads:
                 if i.name == text[1]:
@@ -46,7 +46,7 @@ def decodeMsg(user, string, mythreads):
         elif a == "sleep":  # endormir
             pass
         elif a == "help": # afficher command
-            i.socket.send(f"Voici les différentes command possible : \n "
+            user.socket.send(f"Voici les différentes command possible : \n "
                           f" /w [pseudo] : permet de chuchoter au pseudo choisi \n"
                           f" /i : permet d'afficher son inventory \n"
                           f" /m [coordonnées X] [coordonées Y] : permet de se déplacer au coordonées données \n"
