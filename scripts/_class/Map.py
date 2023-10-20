@@ -1,6 +1,6 @@
-from Tile import *
+from .Tile import *
 import numpy as np
-from Colors import *
+from .Colors import *
 class Map:
     def __init__(self, x, y):
         self.sizeX = x
