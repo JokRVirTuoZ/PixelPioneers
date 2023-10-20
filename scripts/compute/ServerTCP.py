@@ -1,8 +1,6 @@
 import socket
 from threading import Thread
 import time
-from socketserver import ThreadingMixIn
-
 
 # Programme du serveur TCP
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -10,13 +8,20 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(("100.84.214.153", 8888))
 mythreads = []
 
-def decode(string):
-    if string.type != str:
+def decodeMsg(user,string,mythreads):
+    if type(string) != str:
         string = str(string)
     if string[0] == "/":
-        a = string[1]
-        b = string[2]
+        text = string.split()
+        a = text[0][1:]
         if a == "w":#chuchoter
+            for i in mythreads:
+                if i.name == text[1]:
+                    print("ok3")
+                    msg=""
+                    for y in range(len(text)-2):
+                        msg += text[2+y] + " "
+                    i.socket.send(f"Message from {user.name} : {msg}".encode("UTF-8"))
             pass
         if a == "i":#inventory
             pass
@@ -36,6 +41,8 @@ def decode(string):
             pass
         if a == "sleep":#endormir
             pass
+        if a == "tabasserjusquacequemortsensuive":#bagare
+            pass
 
 
 
@@ -47,8 +54,9 @@ def decode(string):
 
 
 class myThread(Thread):
-    def __init__(self, ip, port):
+    def __init__(self,socket, ip, port):
         Thread.__init__(self)
+        self.socket = socket
         self.ip = ip
         self.port = port
         self.name = ""
@@ -57,27 +65,33 @@ class myThread(Thread):
 
     def run(self):
         if self.name == "" :
-            data = con.recv(2048)
+            data = self.socket.recv(2048)
             self.name = data.decode("UTF-8")
         while True:
-            data = con.recv(2048)
+            data = self.socket.recv(2048)
             data = data.decode("UTF-8")
             print(self.name, ":", data)
+            decodeMsg(self,data,mythreads)
             if data == 'close':
                 self.sleeped = True
                 while self.sleeped:
                     try:
-                        data = con.recv(2048)
+                        data = self.socket.recv(2048)
                         data = data.decode("UTF-8")
                         if data and data != 'close':
-                            print(self.name, "reconnected", data)
+                            print(self.name, "reconnected")
+                            print(self.name, ":", data)
+                            decodeMsg(self,data,mythreads)
                             self.sleeped = False
-                        time.sleep(10)
+                            data = ""
+                        else:
+                            time.sleep(10)
                     except:
                         time.sleep(10)
                     else:
                         if data:
                             print(self.name, ":", data)
+                            decodeMsg(self,data,mythreads)
 
 
 while True:
@@ -87,11 +101,12 @@ while True:
     flag = False
     for i in mythreads:
         if i.ip == ip:
-            print(f"trouver un compte déja existant : ")
+            print(f"trouver un compte déja existant : " + i.name)
             mythread = i
             flag = True
+            mythreads.socket = con
     if not flag:
-        mythread = myThread(ip, port)
+        mythread = myThread(con, ip, port)
         mythread.start()
         mythreads.append(mythread)
 
