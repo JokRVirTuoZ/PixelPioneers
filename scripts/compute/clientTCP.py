@@ -14,7 +14,12 @@ def ConnectToServer():
 def sendString(string):
     if threadListen.is_alive():
         threadListen.join()
-    s.send(string.encode("UTF-8"))
+    try:
+        s.send(string.encode("UTF-8"))
+    except:
+        s.close()
+        exit()
+
     if string == "close":
         s.close()
 def listen():
@@ -22,12 +27,12 @@ def listen():
         bf = ""
         try:
             bf = s.recv(2048).decode("UTF-8")
-        except socket.error as e:
-            print(e)
+        except:
+            s.close()
+            exit()
 
         if bf != "":
             print(f"\n"+bf+"\nChaîne à envoyer au serveur : ")
         time.sleep(0.2)
-
 
 threadListen = threading.Thread(target=listen)
