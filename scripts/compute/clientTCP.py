@@ -1,3 +1,4 @@
+import socket
 import socket as suck
 import time
 import threading
@@ -19,9 +20,13 @@ def sendString(string):
 def listen():
     while 1:
         bf = ""
-        bf = s.recv(2048).decode("UTF-8")
+        try:
+            bf = s.recv(2048).decode("UTF-8")
+        except socket.error as e:
+            print(e)
+
         if bf != "":
-            print(f"\n"+bf+"\n")
+            print(f"\n"+bf+"\nChaîne à envoyer au serveur : ")
         time.sleep(0.2)
 
 
